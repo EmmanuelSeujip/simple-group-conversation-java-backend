@@ -1,0 +1,9 @@
+spring:
+  application:
+    name: messagerie
+  profiles:
+    active: ${SPRING_PROFILES_ACTIVE:prod}
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: false
