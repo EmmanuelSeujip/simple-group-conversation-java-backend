@@ -10,8 +10,6 @@ import org.springframework.messaging.simp.SimpMessageSendingOperations;
 import org.springframework.messaging.simp.stomp.StompHeaderAccessor;
 import org.springframework.web.socket.messaging.SessionDisconnectEvent;
 
-import java.util.Objects;
-
 @Configuration
 @RequiredArgsConstructor
 public class WebSocketEventListener {
@@ -19,18 +17,25 @@ public class WebSocketEventListener {
     private final SimpMessageSendingOperations simpMessageSendingOperations;
 
     @EventListener
-    public void handleWebSocketDisconnectListener(SessionDisconnectEvent sessionDisconnectEvent){
+    public void handleWebSocketDisconnectListener(SessionDisconnectEvent sessionDisconnectEvent) {
         var headerAccessor = StompHeaderAccessor.wrap(sessionDisconnectEvent.getMessage());
-        var userName = Objects.requireNonNull(headerAccessor.getSessionAttributes()).get("username").toString();
+        var principal = headerAccessor.getUser();
 
-        if (Objects.nonNull(userName)){
-            var user = userService.findByUsername(userName);
-            user.setOnline(false);
-
-            var leaveMessage= new Message();
-            leaveMessage.setType(MessageType.LEAVE);
-            leaveMessage.setSender(user);
-            simpMessageSendingOperations.convertAndSend("/topic/public",leaveMessage);
+        // Déconnexion avant CONNECT STOMP authentifié (ex. CloseStatus 1001) → rien à faire
+        if (principal == null) {
+            return;
         }
+
+        var user = userService.findByUsername(principal.getName());
+        if (user == null) {
+            return;
+        }
+
+        userService.setUserOffline(user);
+
+        var leaveMessage = new Message();
+        leaveMessage.setType(MessageType.LEAVE);
+        leaveMessage.setSender(user);
+        simpMessageSendingOperations.convertAndSend("/topic/public", leaveMessage);
     }
 }

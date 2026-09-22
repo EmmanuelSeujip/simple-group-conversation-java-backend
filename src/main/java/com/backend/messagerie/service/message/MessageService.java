@@ -19,8 +19,8 @@ public class MessageService {
         return messageRepository.save(message);
     }
 
-    public List<Message> getAllMessage(String username) {
-        return messageRepository.findAllBySenderIdOrderByCreatedAtAsc(userService.getIdByUsername(username));
+    public List<Message> getAllMessage() {
+        return messageRepository.findAllByOrderByCreatedAtAsc();
     }
 
     public List<Message> getRecentMessage(String username) {

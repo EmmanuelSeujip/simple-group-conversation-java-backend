@@ -4,6 +4,8 @@ import com.backend.messagerie.dto.message.MessageDto;
 import com.backend.messagerie.mapper.MessageMapper;
 import com.backend.messagerie.service.message.MessageService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -17,6 +19,13 @@ import java.util.List;
 public class MessageController {
     private final MessageService messageService;
     private final MessageMapper messageMapper;
+
+    @GetMapping
+    public ResponseEntity<List<MessageDto>> getMessages() {
+        return ResponseEntity.ok(messageService.getAllMessage().stream().map(
+                messageMapper::cleanMessageModel
+        ).toList());
+    }
 
     @GetMapping("/search")
     public List<MessageDto> search(@RequestParam("q") String keyword) {

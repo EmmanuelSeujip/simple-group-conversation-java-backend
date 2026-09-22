@@ -11,7 +11,7 @@ import java.util.List;
 public interface MessageRepository extends JpaRepository<Message, Long> {
 
     List<Message> findAllBySenderIdOrderByCreatedAtAsc(Long senderId);
-
+    List<Message> findAllByOrderByCreatedAtAsc();
     List<Message> findTop50BySenderIdOrderByCreatedAtDesc(Long senderId);
 
     @Query("""
